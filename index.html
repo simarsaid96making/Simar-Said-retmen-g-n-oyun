@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Öğretmenler Günü Sürprizi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #fce4ec 0%, #f8bbd0 25%, #e57373 55%, #880e4f 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 12px 40px;
+      position: relative;
+      color: #4a148c;
+    }
+
+    /* Yüzen kalpler arka plan */
+    .bg-hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bg-heart {
+      position: absolute;
+      font-size: 18px;
+      opacity: 0.25;
+      animation: floatHeart linear infinite;
+      will-change: transform;
+      color: #ad1457;
+    }
+
+    @keyframes floatHeart {
+      0% {
+        transform: translateY(100vh) rotate(0deg) scale(0.6);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.3;
+      }
+      90% {
+        opacity: 0.25;
+      }
+      100% {
+        transform: translateY(-10vh) rotate(360deg) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    /* Ana içerik */
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 5vw, 1.9rem);
+      color: #880e4f;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.6);
+      margin-top: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .instruction {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 12px 22px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ad1457;
+      box-shadow: 0 4px 15px rgba(136, 14, 79, 0.15);
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+    }
+
+    .instruction:active {
+      transform: scale(0.96);
+    }
+
+    .instruction.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+
+    /* Kutu alanı */
+    .boxes-area {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .gift-box {
+      position: absolute;
+      width: 140px;
+      height: 120px;
+      cursor: pointer;
+      transform-origin: center center;
+      transition: none;
+      z-index: 20;
+    }
+
+    .gift-box .lid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      background: linear-gradient(145deg, #ec407a, #c2185b);
+      border-radius: 12px 12px 4px 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 2;
+      transform-origin: bottom center;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .gift-box .body {
+      position: absolute;
+      bottom: 0;
+      left: 5%;
+      width: 90%;
+      height: 65%;
+      background: linear-gradient(160deg, #f8bbd0, #f48fb1);
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(136, 14, 79, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .gift-box .ribbon-v {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 18px;
+      height: 100%;
+      background: linear-gradient(90deg, #880e4f, #ad1457, #880e4f);
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+
+    .gift-box .ribbon-h {
+      position: absolute;
+      top: 32%;
+      left: 0;
+      width: 100%;
+      height: 16px;
+      background: linear-gradient(180deg, #880e4f, #ad1457, #880e4f);
+      z-index: 3;
+    }
+
+    .gift-box .bow {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 24px;
+      z-index: 4;
+    }
+
+    .gift-box .bow::before,
+    .gift-box .bow::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #ad1457;
+      border-radius: 50% 50% 0 50%;
+      top: 0;
+    }
+
+    .gift-box .bow::before {
+      left: 0;
+      transform: rotate(-45deg);
+    }
+
+    .gift-box .bow::after {
+      right: 0;
+      transform: rotate(45deg);
+    }
+
+    .gift-box.open .lid {
+      transform: rotateX(-110deg) translateY(-10px);
+    }
+
+    .gift-box.flying {
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Küçük kalpler (açılma efekti) */
+    .pop-heart {
+      position: absolute;
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 50;
+      animation: popHeart 0.9s ease-out forwards;
+    }
+
+    @keyframes popHeart {
+      0% {
+        transform: translate(0, 0) scale(0.3);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* Konfeti */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 100;
+      border-radius: 2px;
+      animation: confettiFall 2.8s ease-out forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    /* Final mesaj */
+    .message-wrapper {
+      display: none;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 10px;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .message-wrapper.show {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .message-frame {
+      background: linear-gradient(145deg, #fff8f9, #fce4ec);
+      border: 4px solid #ec407a;
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 
+        0 0 0 6px #f8bbd0,
+        0 12px 40px rgba(136, 14, 79, 0.25),
+        inset 0 0 30px rgba(236, 64, 122, 0.08);
+      position: relative;
+    }
+
+    .message-frame::before,
+    .message-frame::after {
+      content: '♥';
+      position: absolute;
+      font-size: 22px;
+      color: #ec407a;
+    }
+
+    .message-frame::before {
+      top: -14px;
+      left: 24px;
+    }
+
+    .message-frame::after {
+      top: -14px;
+      right: 24px;
+    }
+
+    .message-content {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: #4a148c;
+      white-space: pre-line;
+      text-align: left;
+    }
+
+    .message-content strong {
+      display: block;
+      text-align: center;
+      font-size: 1.15rem;
+      color: #880e4f;
+      margin-bottom: 12px;
+    }
+
+    /* Butonlar */
+    .btn-restart {
+      display: none;
+      margin-top: 22px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #ec407a, #ad1457);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(173, 20, 87, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      z-index: 20;
+    }
+
+    .btn-restart:active {
+      transform: scale(0.96);
+    }
+
+    .btn-restart.show {
+      display: inline-block;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Küçük ekran ayarları */
+    @media (max-width: 400px) {
+      .boxes-area {
+        height: 240px;
+      }
+      .gift-box {
+        width: 120px;
+        height: 105px;
+      }
+      .message-content {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-hearts" id="bgHearts"></div>
+
+  <div class="container">
+    <h1>Öğretmenler Günü Sürprizi</h1>
+    <div class="instruction" id="instruction">Kutuları açmak için buraya basın</div>
+
+    <div class="boxes-area" id="boxesArea"></div>
+
+    <div class="message-wrapper" id="messageWrapper">
+      <div class="message-frame">
+        <div class="message-content" id="messageContent"></div>
+      </div>
+    </div>
+
+    <button class="btn-restart" id="btnRestart">Tekrar Başlat</button>
+  </div>
+
+  <script>
+    // ========== WEB AUDIO ==========
+    let audioCtx = null;
+    let audioReady = false;
+
+    function initAudio() {
+      if (audioReady) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioReady = true;
+    }
+
+    function playPop() {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, t);
+      osc.frequency.exponentialRampToValueAtTime(180, t + 0.12);
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc.start(t);
+      osc.stop(t + 0.16);
+    }
+
+    function playCelebration() {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime;
+      // Patlama
+      const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const noiseGain = audioCtx.createGain();
+      noise.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noiseGain.gain.setValueAtTime(0.5, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      noise.start(t);
+
+      // Kutlama akoru (C maj)
+      const notes = [261.63, 329.63, 392.00, 523.25];
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.18, t + 0.05 + i * 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
+        osc.start(t + i * 0.03);
+        osc.stop(t + 1.5);
+      });
+    }
+
+    // ========== ARKA PLAN KALPLERİ ==========
+    function createBgHearts() {
+      const container = document.getElementById('bgHearts');
+      for (let i = 0; i < 18; i++) {
+        const h = document.createElement('div');
+        h.className = 'bg-heart';
+        h.textContent = '♥';
+        h.style.left = Math.random() * 100 + '%';
+        h.style.fontSize = (14 + Math.random() * 18) + 'px';
+        h.style.animationDuration = (8 + Math.random() * 12) + 's';
+        h.style.animationDelay = (Math.random() * 10) + 's';
+        h.style.opacity = 0.15 + Math.random() * 0.2;
+        container.appendChild(h);
+      }
+    }
+
+    // ========== OYUN DURUMU ==========
+    let totalBoxes = 0;
+    let currentLevel = 0;
+    let isOpening = false;
+    let gameStarted = false;
+
+    const messageText = `Sevgili Öğretmenim,
+
+İnsanın içinde bazı izler vardır; zamanla silinmek bir yana, yıllar geçtikçe daha da derinleşir. Sizin derslerinizdeki o sakin cümleler, takıldığımız anlardaki güven veren sesiniz ve "Birlikte bakarız, elbet bir yolu vardır" deyişiniz, yolumuzu aradığımız o en sessiz anlarda bize yön verdi.
+
+Bize yalnızca dersleri ya da cevapları öğretmediniz; gökyüzüne bakıp "neden" demeyi, düştüğümüzde yeniden ayağa kalkacak gücü bulmayı ve karanlık görünen bir sorunun içinde yeni bir ışık aramayı öğrettiniz. Aklımızın karıştığı, en basit şeyin bile ağır geldiği günlerde bizden vazgeçmemeniz, içimizdeki kırılgan umutları büyüttü.
+
+Bir öğretmenin emeği defterlere, sayfalara ya da saatlere sığmayacak kadar derin ve kalıcıdır. Bugün attığımız her sağlam adımda, kurduğumuz her düşte ve hayata bakarken kazandığımız her olgunlukta sizin görünmez ama çok güçlü bir dokunuşunuz var. Yüreğe dokunan, tek bir sözle sisleri dağıtan o nadir ışıklardan biri olduğunuz için teşekkürler az kalıyor.
+
+Sabrınız, incitmeyen anlayışınız ve hiç eksilmeyen emeğiniz için yürekten teşekkür ederim. İyi ki yollarımız kesişmiş, iyi ki öğretmenimizsiniz.
+
+Öğretmenler Gününüz kutlu olsun.`;
+
+    // ========== KUTU OLUŞTUR ==========
+    function createBox(scale = 1) {
+      const box = document.createElement('div');
+      box.className = 'gift-box';
+      box.style.transform = `scale(${scale})`;
+      box.innerHTML = `
+        <div class="lid"></div>
+        <div class="ribbon-v"></div>
+        <div class="ribbon-h"></div>
+        <div class="bow"></div>
+        <div class="body"></div>
+      `;
+      return box;
+    }
+
+    function spawnPopHearts(x, y) {
+      const area = document.getElementById('boxesArea');
+      const rect = area.getBoundingClientRect();
+      for (let i = 0; i < 8; i++) {
+        const h = document.createElement('div');
+        h.className = 'pop-heart';
+        h.textContent = '♥';
+        h.style.left = (x - rect.left) + 'px';
+        h.style.top = (y - rect.top) + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 40 + Math.random() * 70;
+        h.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        h.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        h.style.color = ['#ec407a', '#ad1457', '#f48fb1', '#c2185b'][Math.floor(Math.random() * 4)];
+        area.appendChild(h);
+        setTimeout(() => h.remove(), 950);
+      }
+    }
+
+    function spawnConfetti() {
+      const colors = ['#ec407a', '#f48fb1', '#ad1457', '#880e4f', '#fce4ec', '#ff80ab', '#c2185b', '#ffd54f'];
+      for (let i = 0; i < 80; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = (-20 - Math.random() * 30) + 'px';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.width = (6 + Math.random() * 8) + 'px';
+        c.style.height = (6 + Math.random() * 8) + 'px';
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        c.style.animationDuration = (1.8 + Math.random() * 1.8) + 's';
+        c.style.animationDelay = (Math.random() * 0.4) + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }
+    }
+
+    // ========== ANA MANTIK ==========
+    function startGame() {
+      totalBoxes = 4 + Math.floor(Math.random() * 4); // 4-7
+      currentLevel = 0;
+      isOpening = false;
+      gameStarted = true;
+
+      const area = document.getElementById('boxesArea');
+      area.innerHTML = '';
+      document.getElementById('messageWrapper').classList.remove('show');
+      document.getElementById('btnRestart').classList.remove('show');
+      document.getElementById('instruction').classList.remove('hidden');
+
+      const firstBox = createBox(1);
+      area.appendChild(firstBox);
+      firstBox.addEventListener('click', handleBoxClick);
+    }
+
+    function handleBoxClick(e) {
+      if (isOpening) return;
+      isOpening = true;
+
+      initAudio();
+
+      const box = e.currentTarget;
+      const area = document.getElementById('boxesArea');
+      const rect = box.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      // Kapak aç
+      box.classList.add('open');
+      playPop();
+      spawnPopHearts(centerX, centerY);
+
+      currentLevel++;
+
+      setTimeout(() => {
+        // Kutuyu fırlat
+        const angle = (Math.random() - 0.5) * 140;
+        const dist = 180 + Math.random() * 120;
+        const rad = (angle - 90) * Math.PI / 180;
+        const tx = Math.cos(rad) * dist;
+        const ty = Math.sin(rad) * dist - 40;
+
+        box.classList.add('flying');
+        box.style.transform = `translate(${tx}px, ${ty}px) rotate(${angle * 1.5}deg) scale(0.4)`;
+        box.style.opacity = '0';
+
+        setTimeout(() => box.remove(), 750);
+
+        if (currentLevel >= totalBoxes) {
+          // FINAL
+          setTimeout(() => {
+            playCelebration();
+            spawnConfetti();
+            // Birkaç ekstra kalp
+            for (let i = 0; i < 12; i++) {
+              setTimeout(() => spawnPopHearts(
+                window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+                window.innerHeight / 2 + (Math.random() - 0.5) * 150
+              ), i * 80);
+            }
+
+            document.getElementById('instruction').classList.add('hidden');
+            const msgWrap = document.getElementById('messageWrapper');
+            document.getElementById('messageContent').textContent = messageText;
+            msgWrap.classList.add('show');
+            document.getElementById('btnRestart').classList.add('show');
+
+            // Mesaja kaydır
+            setTimeout(() => {
+              msgWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+
+            isOpening = false;
+          }, 400);
+        } else {
+          // Yeni kutu
+          const scale = 1 - currentLevel * 0.08;
+          const newBox = createBox(Math.max(scale, 0.7));
+          area.appendChild(newBox);
+
+          // Hafif giriş animasyonu
+          newBox.style.opacity = '0';
+          newBox.style.transform = `scale(${Math.max(scale, 0.7) * 0.5})`;
+          requestAnimationFrame(() => {
+            newBox.style.transition = 'opacity 0.35s, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            newBox.style.opacity = '1';
+            newBox.style.transform = `scale(${Math.max(scale, 0.7)})`;
+          });
+
+          newBox.addEventListener('click', handleBoxClick);
+          isOpening = false;
+        }
+      }, 320);
+    }
+
+    // ========== BAŞLATMA ==========
+    document.getElementById('instruction').addEventListener('click', () => {
+      if (!gameStarted) {
+        initAudio();
+        startGame();
+        document.getElementById('instruction').textContent = 'Kutuya dokunarak aç 🎁';
+      }
+    });
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      startGame();
+      document.getElementById('instruction').textContent = 'Kutuya dokunarak aç 🎁';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // İlk yükleme
+    createBgHearts();
+    // Otomatik ilk kutuyu göster
+    startGame();
+  </script>
+</body>
+</html>
